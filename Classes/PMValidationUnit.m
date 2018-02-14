@@ -143,6 +143,24 @@ NSString *const PMValidationUnitUpdateNotification = @"PMValidationUnitUpdateNot
 
 #pragma mark - Text
 
+-(void)doValidateText:(NSString *)text {
+    NSUInteger num_valid = 0;
+    for (PMValidationType *type in self.registeredValidationTypes) {
+        BOOL is_valid = [type isTextValid:text];
+        num_valid += [[NSNumber numberWithBool:is_valid] unsignedIntegerValue];
+    }
+    
+    NSUInteger type_count = [self.registeredValidationTypes count];
+    (num_valid == type_count) ? (self.isValid = YES) : (self.isValid = NO);
+    
+    self.lastTextValue = text;
+}
+
+- (void)validateTextSynchronously:(NSString *)text {
+    [self doValidateText:text];
+    [self validationComplete];
+}
+
 - (void)validateText:(NSString *)text {
 
     if (self.enabled) {
@@ -154,16 +172,7 @@ NSString *const PMValidationUnitUpdateNotification = @"PMValidationUnitUpdateNot
             if (weak_self) {
                 __strong PMValidationUnit *strong_self = weak_self;
                 if (strong_self) {
-                    NSUInteger num_valid = 0;
-                    for (PMValidationType *type in strong_self.registeredValidationTypes) {
-                        BOOL is_valid = [type isTextValid:text];
-                        num_valid += [[NSNumber numberWithBool:is_valid] unsignedIntegerValue];
-                    }
-                    
-                    NSUInteger type_count = [strong_self.registeredValidationTypes count];
-                    (num_valid == type_count) ? (strong_self.isValid = YES) : (strong_self.isValid = NO);
-
-                    strong_self.lastTextValue = text;
+                    [strong_self doValidateText:text];
                 
                     // send notification (on main queue, because there be UI work)
                     dispatch_async(dispatch_get_main_queue(), ^{

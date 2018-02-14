@@ -99,6 +99,15 @@
 */
 - (void)validateText:(NSString *)text;
 
+/**
+ Initiates validation update based on the specified string synchronously.
+ 
+ @param text The text to validate
+ 
+ @discussion Validation updates are provided by listening to `PMValidationUnitUpdateNotification` notifications.
+ 
+ */
+- (void)validateTextSynchronously:(NSString *)text;
 
 /**
  Boolean getter denoting the overall validation status of all `PMValidationType` instances registered with this instance. A value of `YES` denotes that every validation type test has passed.
